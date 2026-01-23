@@ -3,20 +3,24 @@ pipeline {
 
     environment {
         IMAGE_NAME = "nikhilta28/abctechnologies"
-        IMAGE_TAG  = "${BUILD_NUMBER}"
+        IMAGE_TAG  = "17"  // You can replace with ${BUILD_NUMBER} for dynamic tags
     }
 
     stages {
 
-        stage('Build Application (Maven)') {
+        stage('Checkout') {
             steps {
-                sh '''
-                mvn clean package
-                '''
+                git 'https://github.com/nikhilta28-IGP/IGP-1.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build WAR') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Docker Build') {
             steps {
                 sh '''
                 docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
@@ -24,10 +28,11 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Docker Login & Push') {
             steps {
+                // Using Jenkins credentials for Docker login (PAT)
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
+                    credentialsId: 'dockerhub-creds',  // <-- your Jenkins credential ID
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -39,12 +44,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy using Ansible') {
             steps {
                 sh '''
-                export IMAGE_TAG=${IMAGE_TAG}
                 cd /var/lib/jenkins/ansible
-                ansible-playbook deploy-k8s.yml
+                ansible-playbook -i inventory deploy-docker.yml
                 '''
             }
         }
