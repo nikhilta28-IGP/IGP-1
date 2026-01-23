@@ -2,18 +2,11 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_TAG = "${BUILD_NUMBER}"
         IMAGE_NAME = "nikhilta28/abctechnologies"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
     }
 
     stages {
-
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/<your-repo>.git'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
