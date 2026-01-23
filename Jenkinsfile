@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "nikhilta28/abctechnologies"
+        IMAGE_TAG  = "17"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -9,27 +14,17 @@ pipeline {
             }
         }
 
-        stage('Compile') {
+        stage('Build WAR') {
             steps {
-                sh 'mvn compile'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn package'
+                sh 'mvn clean package'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t abctechnologies:latest .'
+                sh '''
+                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
             }
         }
 
