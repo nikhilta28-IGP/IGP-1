@@ -59,7 +59,7 @@ pipeline {
             steps {
                 sh """
                 cd ${ANSIBLE_DIR}
-                ansible-playbook -i inventory k8s-deploy.yml \
+                ansible-playbook -i inventory k8s/k8s-deploy.yml \
                     -e image_name=${IMAGE_NAME} \
                     -e image_tag=${IMAGE_TAG}
                 """
