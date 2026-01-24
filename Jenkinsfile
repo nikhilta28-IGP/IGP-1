@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "nikhilta28/abctechnologies" // Your DockerHub repo
-        IMAGE_TAG  = "${BUILD_NUMBER}"            // Dynamic tag per Jenkins build
+        IMAGE_NAME  = "nikhilta28/abctechnologies"
+        IMAGE_TAG   = "${BUILD_NUMBER}"
         ANSIBLE_DIR = "/var/lib/jenkins/ansible"
-        KUBECONFIG = "/var/lib/jenkins/.kube/config" // Embedded kubeconfig path
+        KUBECONFIG  = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
@@ -32,12 +32,12 @@ pipeline {
         stage('Docker Login & Push') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'mydockerhubcred', // DockerHub PAT stored in Jenkins
+                    credentialsId: 'mydockerhubcred',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
                     docker push ${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
@@ -48,9 +48,8 @@ pipeline {
             steps {
                 sh """
                 cd ${ANSIBLE_DIR}
-                ansible-playbook -i inventory deploy-docker.yml \
-                    -e image_name=${IMAGE_NAME} \
-                    -e image_tag=${IMAGE_TAG}
+                source /var/lib/jenkins/ansible-venv/bin/activate
+                ansible-playbook -i inventory deploy-docker.yml
                 """
             }
         }
@@ -59,9 +58,8 @@ pipeline {
             steps {
                 sh """
                 cd ${ANSIBLE_DIR}
-                ansible-playbook -i inventory k8s/k8s-deploy.yml \
-                    -e image_name=${IMAGE_NAME} \
-                    -e image_tag=${IMAGE_TAG}
+                source /var/lib/jenkins/ansible-venv/bin/activate
+                ansible-playbook -i inventory k8s-deploy.yml
                 """
             }
         }
@@ -72,7 +70,7 @@ pipeline {
             echo "✅ CI/CD Pipeline executed successfully!"
         }
         failure {
-            echo "❌ CI/CD Pipeline failed. Check logs!"
+            echo "❌ CI/CD Pipeline failed. Check Jenkins logs!"
         }
     }
 }
