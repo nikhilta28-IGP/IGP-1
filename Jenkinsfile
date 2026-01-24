@@ -32,7 +32,7 @@ pipeline {
             steps {
                 // Using Jenkins credentials for Docker login (PAT)
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',  // <-- your Jenkins credential ID
+                    credentialsId: 'mydockerhubcred',  // <-- your Jenkins credential ID
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
