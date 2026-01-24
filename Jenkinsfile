@@ -48,7 +48,7 @@ pipeline {
             steps {
                 sh """
                 cd ${ANSIBLE_DIR}
-                source /var/lib/jenkins/ansible-venv/bin/activate
+                . /var/lib/jenkins/ansible-venv/bin/activate
                 ansible-playbook -i inventory deploy-docker.yml
                 """
             }
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 sh """
                 cd ${ANSIBLE_DIR}
-                source /var/lib/jenkins/ansible-venv/bin/activate
+                . /var/lib/jenkins/ansible-venv/bin/activate
                 ansible-playbook -i inventory k8s-deploy.yml
                 """
             }
